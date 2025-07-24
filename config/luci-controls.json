@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Device 1",
+        "ip": "192.168.0.2",
+        "user": "root",
+        "key": "/home/username/.ssh/dev1"
+    },
+    {
+        "name": "Device 2",
+        "ip": "192.168.0.3",
+        "user": "ctrl",
+        "key": "/home/username/.ssh/dev2"
+    },
+    {
+        "name": "Device 3",
+        "ip": "192.168.0.4",
+        "user": "john",
+        "key": "/home/username/.ssh/dev3"
+    },
+    {
+        "name": "Device 4",
+        "ip": "192.168.0.5",
+        "user": "root",
+        "key": "/home/username/.ssh/dev4"
+    }
+]

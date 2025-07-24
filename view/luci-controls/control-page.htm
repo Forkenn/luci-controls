@@ -1,0 +1,112 @@
+<%+header%>
+<div class="cbi-map">
+    <h2>State Managment</h2>
+    <div class="cbi-map-descr">
+        Here you can manage the status of devices on the local network. 
+        The list of devices are specified in the <code>/etc/config/luci-controls.json</code> file.
+    </div>
+    <div class="cbi-section">
+        <div class="right">
+            <button onclick="loadDevices()" class="cbi-button cbi-button-reload">Refresh</button>
+        </div>
+        <h3>Devices</h3>
+        <table class="table" id="device-table">
+            <tr class="tr table-titles">
+                <th class="th">Device</th>
+                <th class="th">IP Address</th>
+                <th class="th">State</th>
+                <th class="th cbi-section-table-cell nowrap cbi-section-actions">Actions</th>
+            </tr>
+            <tbody class="device-tbody">
+                <% for _, device in ipairs(devices) do %>
+                    <tr class="tr cbi-rowstyle-1">
+                        <td class="td" data-title="Device"><%= device.name %></td>
+                        <td class="td" data-title="IP Address"><%= device.ip %></td>
+                        <td class="td state" data-title="State">
+                            <% if device.up then %>
+                                <span style="color:green;">UP</span>
+                            <% else %>
+                                <span style="color:red;">DOWN</span>
+                            <% end %>
+                        </td>
+                        <td class="td cbi-section-table-cell nowrap cbi-section-actions" data-title="Actions">
+                            <% if device.up then %>
+                                <form method="post" action="<%= url('admin/control-page/action') %>" style="display:inline;">
+                                    <input type="hidden" name="ip" value="<%= device.ip %>" />
+                                    <input type="hidden" name="do" value="reboot" />
+                                    <input class="cbi-button cbi-button-apply" type="submit" value="Reboot" />
+                                </form>
+                                <form method="post" action="<%= url('admin/control-page/action') %>" style="display:inline;">
+                                    <input type="hidden" name="ip" value="<%= device.ip %>" />
+                                    <input type="hidden" name="do" value="shutdown" />
+                                    <input class="cbi-button cbi-button-remove" type="submit" value="Shutdown" />
+                                </form>
+                            <% else %>
+                                <em>Unavailable</em>
+                            <% end %>
+                        </td>
+                    </tr>
+                <% end %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function loadDevices() {
+        fetch('<%= url("admin/control-page/status") %>')
+            .then(response => response.json())
+            .then(data => updateTable(data))
+    }
+
+    function updateTable(data) {
+        const tbody = document.querySelector(".device-tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(device => {
+            const row = document.createElement("tr");
+            row.classList.add('tr', 'cbi-rowstyle-1');
+
+            row.innerHTML = `
+                <td class="td" data-title="Device">${device.name}</td>
+                <td class="td" data-title="IP Address">${device.ip}</td>
+                <td class="td state" data-title="State">
+                    ${device.up
+                        ? '<span style="color:green;">UP</span>'
+                        : '<span style="color:red;">DOWN</span>'}
+                </td>
+                <td class="td cbi-section-table-cell nowrap cbi-section-actions" data-title="Actions">
+                    ${device.up
+                        ? `
+                        <form method="post" action="<%= url('admin/control-page/action') %>" style="display:inline;">
+                            <input type="hidden" name="ip" value="${device.ip}" />
+                            <input type="hidden" name="do" value="reboot" />
+                            <input class="cbi-button cbi-button-apply" type="submit" value="Reboot" />
+                        </form>
+                        <form method="post" action="<%= url('admin/control-page/action') %>" style="display:inline;">
+                            <input type="hidden" name="ip" value="${device.ip}" />
+                            <input type="hidden" name="do" value="shutdown" />
+                            <input class="cbi-button cbi-button-remove" type="submit" value="Shutdown" />
+                        </form>
+                        `
+                        : `<em>Unavailable</em>`}
+                </td>
+            `;
+
+            tbody.appendChild(row);
+            });
+    }
+
+    window.addEventListener('load', function () {
+        XHR.poll(10, 'admin/control-page/status', {}, function(response, xhr, error) {
+            if (!response || response.status != 200) {
+                console.error('Polling error: ', error);
+                return;
+            }
+            updateTable(response.responseJSON);
+        });
+    });
+    //setInterval(updateTable, 10000);
+</script>
+
+<%+footer%>
