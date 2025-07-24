@@ -1,5 +1,9 @@
-# luci-controls
+# LuCI Controls
 The "LuCI Controls" module adds the ability to send remote restart or shutdown commands to Unix devices on the local network via SSH. *For the most part this is a personal project :-)*
+
+<p align="center">
+    <img width="800" height="431" alt="luci-controls" src="https://github.com/user-attachments/assets/2bff4b62-1b94-4ded-a9ef-24a3cd6e961e" />
+</p>
 
 # Requirements
 For OpenWrt versions 23.05 and above the **luci-lua-runtime** package is required.
